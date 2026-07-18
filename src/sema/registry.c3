@@ -33,6 +33,7 @@ fn void register(AnalyzerContext* context, SourceFile* sf) => @pool()
 
 		if (current_mod == null)
 		{
+
 			Path? path = path::tnew(sf.path);
 			if (catch err = path)
 			{

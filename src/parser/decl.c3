@@ -1403,7 +1403,8 @@ fn Node* parse_enum_constdef_decl(ContextScope scope) => @pool()
 	{
 		if (!ctx.is(DOCS_START) && !ctx.is(CONST_IDENT))
 		{
-			diagnostics::error(ctx.context, ctx.current.range, "Expected enum variant or contract");
+			diagnostics::error(ctx.context, ctx.current.range, "Expected enum variant or contract. " +++
+				"Enum variants must be SCREAMING_SNAKE_CASE");
 			skip_until(ctx, { COMMA, RBRACE });
 			consume(ctx, COMMA); // Try to jump to next
 			continue;

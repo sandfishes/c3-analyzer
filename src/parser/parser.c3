@@ -414,12 +414,13 @@ fn Node* parse_top_level_statement(ParseContext* ctx)
 	switch (ctx.current.kind)
 	{
 		case DOCS_START:
+			node = parse_contract_decl(scope);
 			if (ctx.contract)
 			{
 				diagnostics::error(ctx.context, ctx.current.range, "There are more than one doc comment in a row, that is not allowed.");
 				ctx.ast.error(ctx.current.range);
+				node.flags.has_error = true;
 			}
-			node = parse_contract_decl(scope);
 			ctx.contract = node;
 		case INTERFACE:
 			node = parse_interface_decl(scope);
