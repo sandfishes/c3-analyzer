@@ -1,7 +1,5 @@
 module type_tests @test;
 
-/*
-
 import parser_tests;
 
 import analyzer::workspace;
@@ -20,14 +18,14 @@ fn void type_ident()
 		module hello; 
 		fn void greet(int foo, Bar baz) {}
 	`;
-	Workspace ws;
-	ws.init(mem, { .use_sema = true });
-	defer ws.free();
-	ProcessResult res = workspace::process(&ws, mem, { .uri = "test", .source_text = source_code})!!;
-	defer res.free();
-	test::eq(res.has_errors, false);
-}
+	AnalyzerContext* context = context::create(tmem);
+	bool success = context::process(context, source_code, "test");
+	test::eq(success, true);
 
+	Module* mod = context.modules.get("hello")!!;
+	
+}
+/*
 fn void global_array_pointer()
 {
 	String source_code = `
