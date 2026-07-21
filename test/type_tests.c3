@@ -1,5 +1,5 @@
 module type_tests @test;
-
+/* DONE
 import parser_tests;
 
 import analyzer::parser;
@@ -261,11 +261,13 @@ fn void typeof_typefrom()
 	test::eq(type.type_kind, TypeExprKind.TYPE_TYPEFROM);
 
 	AccessExpr* access = type.expr.as(AccessExpr);
-	io::printn(access.left.kind);
+
 	CallExpr* left = access.left.as(CallExpr);
 	TypeExpr* callee = left.callee.as(TypeExpr);
+	test::eq(callee.unresolved.name.text, "$Typeof");
 	test::eq(callee.type_kind, TypeExprKind.TYPE_IDENTIFIER);
-	io::printn(callee.expr.kind);
-	assert(false);
+
+	IdentExpr* member = access.member.as(IdentExpr);
+	test::eq(member.ident.text, "inner");
 }
 

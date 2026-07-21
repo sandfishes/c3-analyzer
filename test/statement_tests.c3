@@ -1,14 +1,10 @@
 module stmt_tests @test;
 
-/*
-
 import parser_tests;
 
-import analyzer::workspace;
 import analyzer::parser;
 import analyzer::sema;
 import analyzer::core;
-import analyzer::core::string_pool;
 import std::io;
 import std::collections::list;
 import std::io::file;
@@ -40,35 +36,30 @@ fn void switch_stmt()
 			}
 		}
 	`;
-	Workspace ws;
-	ws.init(mem, { .use_sema = true });
-	defer ws.free();
-	ProcessResult res = workspace::process(&ws, mem, { .uri = "test", .source_text = source_code})!!;
-	defer res.free();
-	test::eq(res.has_errors, false);
+	AnalyzerContext* context = context::create(tmem);
+	bool success = context::process(context, source_code, "test");
+	test::eq(success, true);
 
-	Module* mod      = ws.modules.get("hello")!!;
-	ModuleSection* s = mod.sections[0];
-	StringPool* pool = &s.source_file.ast.string_pool;
+	Module* mod = context.modules.get("hello")!!;
 
-	Node* node = parser_tests::@node(ws.lookup("hello", "foo")!!);
-	FnDecl* func          = node.as(FN_DECL);
-	CompoundStmt* fn_comp = func.body.as(COMPOUND_STMT);
-	SwitchStmt* sw        = fn_comp.statements[1].as(SWITCH_STMT);
+	FunctionInfo* func_info = context.registry.functions.get("hello::foo")!!;
+	FnDecl* func          = func_info.node.as(FnDecl);
+	CompoundStmt* fn_comp = func.body.as(CompoundStmt);
+	SwitchStmt* sw        = fn_comp.statements[1].as(SwitchStmt);
 	test::eq(sw.cases.len, 9);
-	CondExpr* cond = sw.cond.as(COND_EXPR);
-	test::eq(cond.exprs[0].as(IDENT_EXPR).get_ident(pool)!!, "a");
-	test::eq(pool.get(sw.label.id)!!, "LABEL");
+	CondExpr* cond = sw.cond.as(CondExpr);
+	test::eq(cond.exprs[0].as(IdentExpr).ident.text, "a");
+	test::eq(sw.label.text, "LABEL");
 
-	CaseStmt* case0      = sw.cases[0].as(CASE_STMT);
-	CompoundStmt* comp_0 = case0.body.as(COMPOUND_STMT);
+	CaseStmt* case0      = sw.cases[0].as(CaseStmt);
+	CompoundStmt* comp_0 = case0.body.as(CompoundStmt);
 	test::eq(comp_0.statements[0].kind, NodeKind.CONTINUE_BREAK_STMT);
-	CaseStmt* case1      = sw.cases[1].as(CASE_STMT);
-	CompoundStmt* comp_1 = case1.body.as(COMPOUND_STMT);
+	CaseStmt* case1      = sw.cases[1].as(CaseStmt);
+	CompoundStmt* comp_1 = case1.body.as(CompoundStmt);
 	test::eq(comp_1.statements.len, 1);
 
-	test::eq(parser_tests::count_kind(s, MODULE_DECL), 1);
-	test::eq(parser_tests::count_kind(s, FN_DECL), 1);
+	test::eq(parser_tests::count_kind(mod, MODULE_DECL), 1);
+	test::eq(parser_tests::count_kind(mod, FN_DECL), 1);
 }
 
 fn void ct_switch_stmt()

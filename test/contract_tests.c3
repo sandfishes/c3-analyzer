@@ -1,5 +1,5 @@
-// module contract_tests @test;
-
+module contract_tests @test;
+/*_DONE
 import parser_tests;
 
 import analyzer::parser;
