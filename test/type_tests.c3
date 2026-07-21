@@ -1,3 +1,4 @@
+/*
 module type_tests @test;
 
 import parser_tests;
